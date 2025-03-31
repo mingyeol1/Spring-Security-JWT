@@ -21,6 +21,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
 
+
+    //어떻게 UserDetailService를 불러오는가?
+    //1. 로그인시 UsernamePasswordAuthenticationToken이게 호출됨.
+    //2. 시큐리티는 DaoAuthenticationProvider를 사용하여 인증을 수행
+    //3. DaoAuthenticationProvider 내부에서 UserDetailsService.loadUserByUsername(username)을 호출
+    //4. CustomUserDetailService.loadUserByUsername(username)이 실행됨
+    //5. 데이터베이스에서 사용자를 조회하고, UserDetails 객체를 반환
+    //6. DaoAuthenticationProvider가 비밀번호를 검증
+    //7. 검증이 통과되면 인증이 성공하고, CustomUserDetailService가 Authentication 객체를 반환
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = obtainUsername(request);
