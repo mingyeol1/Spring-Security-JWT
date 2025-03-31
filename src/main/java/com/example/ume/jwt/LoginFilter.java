@@ -28,6 +28,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         System.out.println(username);
         log.info(username + "유저네이이이임");
 
+        //CustomUserDetailService를 호출 하는 메서드. 직접 호출을 안하면 이게 동작함.
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
 
         return authenticationManager.authenticate(authToken);
@@ -36,11 +37,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        super.successfulAuthentication(request, response, chain, authResult);
+
+        log.info("로그인 성공!!");
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        super.unsuccessfulAuthentication(request, response, failed);
+        log.info("로그인 실패!!");
     }
 }
