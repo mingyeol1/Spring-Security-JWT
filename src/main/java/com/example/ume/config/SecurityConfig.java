@@ -1,5 +1,6 @@
 package com.example.ume.config;
 
+import com.example.ume.jwt.JWTFilter;
 import com.example.ume.jwt.JWTUtil;
 import com.example.ume.jwt.LoginFilter;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/", "/join").permitAll()    //로그인은 모든사용자가
                         .requestMatchers("/admin").hasRole("ADMIN")             // 어드민 페이지는 어드민만
                         .anyRequest().authenticated());
+
+        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil), UsernamePasswordAuthenticationFilter.class);
