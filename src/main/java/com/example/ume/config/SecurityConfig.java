@@ -53,7 +53,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/", "/join").permitAll()    //로그인은 모든사용자가
-                        .requestMatchers("/admin").hasRole("ADMIN")             // 어드민 페이지는 어드민만
+                        .requestMatchers("/admin").hasRole("USER")             // 어드민 페이지는 어드민만
                         .anyRequest().authenticated());
 
         http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
