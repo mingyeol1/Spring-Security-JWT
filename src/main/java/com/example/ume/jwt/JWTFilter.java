@@ -32,6 +32,17 @@ public class JWTFilter extends OncePerRequestFilter {
         //request에서 Authorization 헤더를 찾음
         String authorization= request.getHeader("Authorization");
 
+        String path = request.getRequestURI();
+
+
+        //토큰 검증이 필요없는 곳은 JWT검증을 안 할 수 있도록
+        if (path.equals("/join")){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
+
         //Authorization 헤더 검증
         if (authorization == null || !authorization.startsWith("Bearer ")) {
 
@@ -42,7 +53,7 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("authorization now");
+        System.out.println("JWT토큰을 검증하겠음.");
         //Bearer 부분 제거 후 순수 토큰만 획득
         String token = authorization.split(" ")[1];
 

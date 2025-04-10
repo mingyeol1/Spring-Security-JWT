@@ -3,10 +3,12 @@ package com.example.ume.jwt;
 import com.example.ume.DTO.CustomUserDetail;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -52,19 +54,33 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
 
-        CustomUserDetail customUserDetail = (CustomUserDetail) authentication.getPrincipal();
+        //유저정보
+        String username = authentication.getName();
 
-        String username = customUserDetail.getUsername();
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Collection<? extends  GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
-
         String role = auth.getAuthority();
+        
+        //토큰생성
+        String access = jwtUtil.createJwt("access", username, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", username, role, 8640000L);
 
-        String token = jwtUtil.createJwt(username, role, 60*60*10L);
+        //응답설정
+        response.setHeader("access", access);
+        response.addCookie(createCooKie("refresh", refresh));
+        response.setStatus(HttpStatus.OK.value());
+    }
 
-        response.addHeader("Authorization", "Bearer " + token);
+    private Cookie createCooKie(String key, String value){  //첫번째 인자는 키값, 두번째인자는 JWT가 들어갈 인자값
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60); //쿠키의 생명주기 JWT토큰과 같은 값
+//        cookie.setSecure(true);     //HTTPS통신을 할경우 
+//        cookie.setPath("/");        //쿠키가 지정될 범위
+        cookie.setHttpOnly(true);     //클라이언트쪽에서 자바스크립트가 쿠키에 접근하지 못하도록
+
+        return cookie;
 
     }
 
